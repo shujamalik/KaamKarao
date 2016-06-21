@@ -1,0 +1,85 @@
+<?php
+/***********************************************************
+*Implementation of hook_init().
+**************************************************************/
+function KaamKaraao_support_init() {
+	global $user , $base_url;
+	drupal_add_js(drupal_get_path('module','KaamKaraao_support') . '/js/KaamKaraao_support.js' , array('scope' => 'footer'));
+	//drupal_add_css(drupal_get_path('module','listing_user_support') . '/css/listing_user_support.css');
+
+
+}
+
+function KaamKaraao_support_form_alter(&$form, &$form_state, $form_id)
+{
+	
+    global $user,$base_url;
+	//print_r($form_id);exit;
+	switch ($form_id) {
+		case 'feedback_node_form' : 
+		drupal_set_title('Help us to serve you better');
+			
+			$form['actions']['submit']['#value'] = "Submit";
+			$form['title']['#required'] = 0;
+			$form['title']['#default_value'] = time();
+			$form['title']['#prefix']                           = '<div style="display:none">';
+            $form['title']['#suffix']                           = '</div>';
+			
+		break;
+        case 'contact_us_node_form':
+			drupal_set_title('Contact Us');
+			$form['title']['#type'] = 'hidden';
+			$form['actions']['submit']['#value'] = "Submit";
+			$form['title']['#required'] = 0;
+			$form['title']['#default_value'] = time();
+			$form['title']['#prefix']                           = '<div style="display:none">';
+            $form['title']['#suffix']                           = '</div>';
+			$form['field_i_accept']['#suffix']            = "<a href= '".$base_url."/node/4' target = '_blank'>Terms & Conditions</a>";
+        $form['#validate'][] = 'validate_custom_register_form';
+		//print_r($form['field_i_accept']);exit;	
+		break;
+		
+		
+		case 'search_block_form':
+		//print_r(arg(1));exit;
+		if(arg(1) == 15){
+			drupal_set_title('');
+		}	
+		//print_r($form['field_i_accept']);exit;	
+		break;
+		
+	}
+}
+
+function KaamKaraao_support_node_submit($node){
+	if($node->type == 'contact_us'){
+		if($node->field_i_accept['und'][0]['value'] == 0){
+			form_set_error('field_i_accept][und][0][value' ,"Please check the Terms and Conditions checkbox");
+		}
+	}
+		
+	
+}
+
+function validate_custom_register_form($form,$form_state){
+		//print_r($form_state['values']['field_i_accept']);exit;
+		if($form_state['values']['field_i_accept']['und'][0]['value'] == 0){
+			form_set_error('field_i_accept][und][0][value' ,"Please check the Terms and Conditions checkbox");
+		}
+	
+		
+	
+}
+
+function KaamKaraao_support_node_insert($node){
+	if($node->type == 'contact_us'){
+		drupal_set_message(t('Request Submitted Successfully'));
+        drupal_goto();
+	}
+	
+	if($node->type == 'feedback'){
+		drupal_set_message(t('Thanks For Your Valuable Feedback'));
+        drupal_goto();
+	}
+}
+?>
